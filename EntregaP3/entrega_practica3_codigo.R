@@ -1,3 +1,6 @@
+rm(list = ls())
+#Cargo los datos de las estaciones y les asigno nombre a las estaciones
+
 datos_Aero <- read.table("AEROPARQUE.txt",col.names = c("Codigo identificacion","Fecha","Temperatura","Temp_de_Rocio","Presion"))
 
 datos_Azul <- read.table("AZUL.txt",col.names = c("Codigo identificacion","Fecha","Temperatura","Temp_de_Rocio","Presion"))
@@ -12,17 +15,15 @@ datos_Mendoza <- read.table("MENDOZA.txt",col.names = c("Codigo identificacion",
 
 ubicacion_estaciones<-read.table("estaciones.txt",col.names =c("Nombres","Latitud","Longitud","Altura") )
 
-#Faltan los datos de Mendoza
+#Faltan los datos de Mendoza, busco de forma manual.
 ubicacion_mendoza<-data.frame("MENDOZA",-32.9,-68.8,746) 
 colnames(ubicacion_mendoza)<-c("Nombres","Latitud","Longitud","Altura")
 
 ubicacion_estaciones<-rbind(ubicacion_estaciones,ubicacion_mendoza)
 
 rm(ubicacion_mendoza)
-#for (i in names(Estaciones)) {
-#  Estaciones[[i]]["Ubicacion"]<-list(ubicacion_estaciones[ubicacion_estaciones$Nombres==toupper(i),])
-#}
 
+#Junto los datos de las estaciones con los datos de ubicacion de cada una
 datos_Aero<-list("Datos"=datos_Aero,"Ubicacion"=ubicacion_estaciones[ubicacion_estaciones$Nombres==toupper("Aeroparque"),])
 datos_Azul<-list("Datos"=datos_Azul,"Ubicacion"=ubicacion_estaciones[ubicacion_estaciones$Nombres==toupper("Azul"),])
 datos_Catamarca<-list("Datos"=datos_Catamarca,"Ubicacion"=ubicacion_estaciones[ubicacion_estaciones$Nombres==toupper("Catamarca"),])
@@ -30,6 +31,7 @@ datos_Chilecito<-list("Datos"=datos_Chilecito,"Ubicacion"=ubicacion_estaciones[u
 datos_Iguazu<-list("Datos"=datos_Iguazu,"Ubicacion"=ubicacion_estaciones[ubicacion_estaciones$Nombres==toupper("Iguazu"),])
 datos_Mendoza<-list("Datos"=datos_Mendoza,"Ubicacion"=ubicacion_estaciones[ubicacion_estaciones$Nombres==toupper("Mendoza"),])
 
+#Genero una lista con las listas de las estaciones
 Estaciones<-list("Aeroparque"=datos_Aero,"Azul"=datos_Azul,"Catamarca"=datos_Catamarca,"Chilecito"=datos_Chilecito,"Iguazu"=datos_Iguazu,"Mendoza"=datos_Mendoza)
 
 #A los datos faltantes les asigno NA
@@ -37,7 +39,7 @@ Estaciones<-list("Aeroparque"=datos_Aero,"Azul"=datos_Azul,"Catamarca"=datos_Cat
 for (i in names(Estaciones)) {
   Estaciones[[i]][["Datos"]][Estaciones[[i]][["Datos"]][]==9999.9]<-NA
 }
-#Cnvierto las temperaturas de grados fahrenheit a Celsius
+#Convierto las temperaturas de grados fahrenheit a Celsius
 
 for (i in names(Estaciones)) {
   Estaciones[[i]][["Datos"]][3:4]<-(Estaciones[[i]][["Datos"]][3:4] - 32) * (5/9)
@@ -45,6 +47,12 @@ for (i in names(Estaciones)) {
 
 
 Resumen_Lista<-function(lista){
+  #Parametros: Recibe listas
+  #Valor de retorno: Devuelve resumen de la lista ingresada
+  
+  #Crea vectores en los que se les ingresara los valores de cada estacion
+  #para luego unirlos en una lista
+  
   nombres<-c()
   media_T<-c()
   media_Tr<-c()
@@ -88,6 +96,13 @@ Resumen_Lista<-function(lista){
 Resumen_Lista()
 
 Localizacion<-function(lista,long_max,long_min,lat_max,lat_min){
+  #Parametros: Recibe una lista, y valores numericos de longitud y latitud
+  #Valor de Retorno: Mensaje con el aviso.
+  
+  #Genera un vector vacio, en los que se ingresara mensajes 
+  #que avisan las estaciones que estan dentro 
+  #del rango de los valores ingresados de longitud y latitud
+  
   estaciones_en_la_region<-c()
   t<-1
   for (i in names(lista)) {
